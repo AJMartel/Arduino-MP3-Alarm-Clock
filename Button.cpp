@@ -14,8 +14,7 @@
  
   Button::Button(int pin){
     //Button constructor initializes button object variables
-    buttonPin = pin;
-    
+    buttonPin = pin; 
     buttonState = LOW;         // variable for reading the pushbutton status    
   }
 
