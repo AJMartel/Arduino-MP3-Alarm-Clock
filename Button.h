@@ -10,24 +10,21 @@
  */
 
 #ifndef _Button_h
-#define _Button_h
 
- #include "Arduino.h"
+   #define _Button_h
+   #include "Arduino.h"
 
- 
-class Button{  
-  int buttonPin;     // the number of the pushbutton pin
-
-  // variables will change:
-  int buttonState = 0;         // variable for reading the pushbutton status    
-  unsigned long buttonDownMs;  // to avoid bouncing recording number of ms button is down
-
-
-  public:
-  Button(int pin);  // Button constructor initializes button object variables
-  void setup();     // setup the button object
-  int pressed();    // Returns 1 if the button is pressed
-};
+   class Button{  
+      int buttonPin;     // the number of the pushbutton pin
+      // variables will change:
+      int buttonState = 0;         // variable for reading the pushbutton status    
+      unsigned long buttonDownMs;  // to avoid bouncing recording number of ms button is down
+    
+      public:
+      Button(int pin);  // Button constructor initializes button object variables
+      void setup();     // setup the button object
+      int pressed();    // Returns 1 if the button is pressed
+   };
 
 #endif
 
