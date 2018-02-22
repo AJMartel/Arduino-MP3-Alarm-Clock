@@ -15,8 +15,6 @@ void SerialMP3Player::begin(int bps){
   mp3.begin(bps); 
 }
 
-
-
 void SerialMP3Player::playNext(){
   sendCommand(CMD_NEXT);
 } 
@@ -24,7 +22,6 @@ void SerialMP3Player::playNext(){
 void SerialMP3Player::playPrevious(){
   sendCommand(CMD_PREV);
 } 
-
 
 void SerialMP3Player::volUp(){
    sendCommand(CMD_VOL_UP);
@@ -58,9 +55,6 @@ void SerialMP3Player::pause(){
    sendCommand(CMD_PAUSE);
 } 
 
-
-
-
 void SerialMP3Player::play(byte n){
    // n number of the file that must be played.
    // n possible values (1-255)   
@@ -71,14 +65,12 @@ void SerialMP3Player::play(byte n, byte vol){
      
    sendCommand(CMD_PLAY_W_VOL, vol, n);
 } 
-
         
 void SerialMP3Player::playF(byte f){
    // Play all files in the f folder   
    
    sendCommand(CMD_FOLDER_CYCLE, f);
 } 
-
 
 void SerialMP3Player::playFN(byte f, byte n){ 
    // Play named n files in the f folder    
@@ -89,7 +81,6 @@ void SerialMP3Player::playFN(byte f, byte n){
 void SerialMP3Player::stop(){ 
    sendCommand(CMD_STOP_PLAY);
 } 
-
 
 void SerialMP3Player::qPlaying(){ 
   // Ask for the file is playing
@@ -116,15 +107,10 @@ void SerialMP3Player::qTTracks(){
    sendCommand(CMD_QUERY_TOT_TRACKS);
 } 
 
-
 void SerialMP3Player::qTFolders(){  // !!! Nonsense answer
   // Ask for the number of folders
    sendCommand(CMD_QUERY_FLDR_COUNT);
 } 
-
- 
-
-
 
 void SerialMP3Player::sendCommand(byte command){
   sendCommand(command, 0, 0);
@@ -134,13 +120,10 @@ void SerialMP3Player::sendCommand(byte command, byte dat2){
   sendCommand(command, 0, dat2);
 }
 
-
 void SerialMP3Player::sendCommand(byte command, byte dat1, byte dat2){
   byte Send_buf[8] = {0}; // Buffer for Send commands.  
   String mp3send = "";
-
   // Command Structure 0x7E 0xFF 0x06 CMD FBACK DAT1 DAT2 0xEF
-   
   delay(20);
   Send_buf[0] = 0x7E;    // Start byte
   Send_buf[1] = 0xFF;    // Version
@@ -151,17 +134,13 @@ void SerialMP3Player::sendCommand(byte command, byte dat1, byte dat2){
   Send_buf[6] = dat2;    // DATA2 datal
   Send_buf[7] = 0xEF;    // End byte
 
-  for(int i=0; i<8; i++)
-  {
+  for(int i=0; i<8; i++){
     mp3.write(Send_buf[i]) ;
     mp3send+=sbyte2hex(Send_buf[i]);       
   }
-   
   Serial.print("Sending: ");
-  Serial.println(mp3send); // watch what are we sending
-  
+  Serial.println(mp3send); // watch what are we sending  
   //delay(200);  // Wait between sending commands.
- 
 }
 
 //String sanswer(void);
@@ -169,17 +148,13 @@ void SerialMP3Player::sendCommand(byte command, byte dat1, byte dat2){
 //static uint8_t ansbuf[10] = {0}; // Buffer for the answers.     
 
 String SerialMP3Player::decodeMP3Answer(){
- // Response Structure  0x7E 0xFF 0x06 RSP 0x00 0x00 DAT 0xFE 0xBA 0xEF
-  // 
+  // Response Structure  0x7E 0xFF 0x06 RSP 0x00 0x00 DAT 0xFE 0xBA 0xEF
   // RSP Response code 
-  // DAT Response additional data
- 
+  // DAT Response additional data 
   String decodedMP3Answer="";
+  decodedMP3Answer=sanswer();
   
-   decodedMP3Answer=sanswer();
-  
-     switch (ansbuf[3])
-     {
+  switch (ansbuf[3]){
     case 0x3A:
       decodedMP3Answer += " -> Memory card inserted.";
       break;
@@ -212,7 +187,6 @@ String SerialMP3Player::decodeMP3Answer(){
       decodedMP3Answer += " -> File count: " + String(ansbuf[6], DEC);
       break;
 
-
     case 0x4C:
       decodedMP3Answer += " -> Playing: " + String(ansbuf[6], DEC);
       
@@ -225,32 +199,21 @@ String SerialMP3Player::decodeMP3Answer(){
     case 0x4F:
       decodedMP3Answer += " -> Folder count: " + String(ansbuf[6], DEC);
       break;
-     } 
-
-
-     
+  } 
+ 
    ansbuf[3] = 0; // Clear ansbuff.
    return decodedMP3Answer;
 }
 
-
-
-
-
-
 /********************************************************************************/
-/*Function: sbyte2hex. Returns a byte data in HEX format.	                */
+/*Function: sbyte2hex. Returns a byte data in HEX format.	                      */
 /*Parameter:- uint8_t b. Byte to convert to HEX.                                */
 /*Return: String                                                                */
 
-
-String SerialMP3Player::sbyte2hex(byte b)
-{
-  String shex;
-  
+String SerialMP3Player::sbyte2hex(byte b){
+  String shex; 
   //Serial.print("0x");
   shex="0X";
-  
   //if (b < 16) Serial.print("0");
   if (b < 16) shex+="0";
   //Serial.print(b, HEX);
@@ -260,14 +223,11 @@ String SerialMP3Player::sbyte2hex(byte b)
   return shex;
 }
 
-
 /********************************************************************************/
 /*Function: sanswer. Returns a String answer from mp3 UART module.	            */
 /*Return: String.  the answer                                                   */
 
-
-String SerialMP3Player::sanswer(void)
-{
+String SerialMP3Player::sanswer(void){
   // Response Structure  0x7E 0xFF 0x06 RSP 0x00 0x00 DAT 0xFE 0xBA 0xEF
   // 
   // RSP Response code 
@@ -278,7 +238,6 @@ String SerialMP3Player::sanswer(void)
   //     
   //  read while something readed and it's not the end "0xEF"
   
-
   byte b;
   String mp3answer="";                // Answer from the MP3.  
   int iansbuf = 0;  
@@ -302,11 +261,3 @@ String SerialMP3Player::sanswer(void)
   }   
   return mp3answer; 
  }
- 
-
- 
-
-
-
-
-
