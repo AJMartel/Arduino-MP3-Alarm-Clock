@@ -15,9 +15,10 @@ Button button(2);   // Button attached on pin 2
 
 char message[46] = "Staci ";
 
-char adate[6] = "00:00"; // Aux date
+char adate[7] = "00:00"; // Aux date
 char aalarm[7] = "06:00";// Aux alarm
-char odate[6] = "00:00"; // Old date
+char asetting[7] = "00:00"; // Aux for setting
+char odate[7] = "00:00"; // Old date
 
 void setup(void) {
   Serial.begin(9600);
@@ -42,9 +43,11 @@ unsigned long cMillis = millis(); // Current Milis
 const long tinterval = 6000; // RTC and alarm interval to be checked (ms)
 const long interval = 500;   // interval at which _ blinks (milliseconds)
 
-int posn = 0; // Pos Alarm digit
+int posn = 0; // Position of the digit on Alarm / Clock setting.
 
 void loop(void) {
+
+  // wait "tinterval" to check for time from the RTC.
   cMillis = millis();
   if (cMillis - ptMillis >= tinterval) {
     // save the last time you blinked
@@ -61,29 +64,34 @@ void loop(void) {
     }
   }
 
-  chechForSettingAnAlarm();
+  key = keypad.getKey();
+  if(key) setting(key);
+  
+  /*  
+    setting('A'); // Setting an Alarm.
+    setting('C'); // Setting Clock hour and minutes'      
+  */
 
   if(button.pressed()) {
      mp3.stop();
   }
 }
 
-void chechForSettingAnAlarm() {
-  key = keypad.getKey();
-  if(key=='A') {
-    //Serial.print(key);
-    adisplay.displaySetAlarm(adate, aalarm, false);
+void getSettingsFromKeys(int color){
+  // Take the digits for the Alarm or Clock
     posn = 0;
     while(posn<5) {
       key = keypad.getKey();
+      if(key) Serial.println(key);
+  
       if(key){
-        adisplay.setCursorPrintln(posn, key, aalarm);
+        adisplay.setCursorPrintlnColor(posn, key, asetting, color);
 
-        aalarm[posn] = key;
-        rtc.setAlarm(aalarm);
+        asetting[posn] = key;
+        //rtc.setAlarm(aalarm);
         posn++;
         if(posn == 2) posn ++;
-        adisplay.setAlarmBlink(posn, 0, aalarm);
+        adisplay.setColorBlink(posn, 0, asetting, color);
        }else{ 
         // blinks _ every interval (500ms)
         cMillis = millis();
@@ -92,12 +100,55 @@ void chechForSettingAnAlarm() {
           pMillis = cMillis;
 
           if(b) b = 0; else b = 1;
-          adisplay.setAlarmBlink(posn, b, aalarm);
+          adisplay.setColorBlink(posn, b, asetting, color);
         }
       }
     } // posn 5
-    adisplay.displaySetAlarm(adate, aalarm, true);
-    eeprom.eput(aalarm);
-  } // Key == A
+  
+}
+
+void setting(char key) {
+  // Set an Alarm or the Clock
+  //    'A' for Alarm
+  //    'C' for Clock
+
+    int color;
+    
+    switch(key){
+    case 'A': 
+      //chechForSettingAnAlarm(); // If 'A' is pressent set the Alarm.
+      // Setting an Alarm.
+      color = ST7735_RED;
+      strcpy(asetting,aalarm);
+      
+      adisplay.displaySet(adate, aalarm, false, 'a');
+
+      getSettingsFromKeys(color);
+
+      strcpy(aalarm,asetting);
+ 
+      adisplay.displaySet(adate, aalarm, true, 'a');
+
+      rtc.setAlarm(asetting);
+      eeprom.eput(asetting);
+      break;
+    case 'C':
+      //checkForSettingClock();   // If 'C' is pressed then sets hour and minutes.
+      // Setting Clock hour and minutes'
+      color = ST7735_GREEN;
+      strcpy(asetting,adate);
+ 
+      adisplay.displaySet(adate, aalarm, false, 'c');
+
+      getSettingsFromKeys(color);
+
+      strcpy(adate,asetting);
+ 
+      adisplay.displaySet(adate, aalarm, true,'a');
+
+      rtc.setCTime(asetting);
+      break;
+    }
+
 }
 

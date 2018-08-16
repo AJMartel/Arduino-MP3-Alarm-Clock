@@ -113,17 +113,69 @@ void ADisplay::displayDateAlarm(char *odate, char *date, char *alarm){
   
 }
 
+void ADisplay::setColorBlink(int posn, bool black, char *alarm, unsigned int color){
 
-void ADisplay::displaySetAlarm(char *date, char *alarm, bool settled){
+    tft.setCursor(35+posn*18, 80);
+   
+    if(black){
+      tft.setTextColor(color); // ST7735_RED or ST7735_GREEN 
+    }else{
+      tft.setTextColor(ST7735_BLACK);
+    }
+    
+    tft.println("_");
+
+    tft.setTextColor(color);
+    tft.setCursor(35, 80);
+    tft.println(alarm);
+  }
+
+  
+
+void ADisplay::setCursorPrintlnColor(int posn, char key, char *alarm, unsigned int color){
+    int posn1 = posn;
+    
+    setColorBlink(posn, 0, alarm, color);
+
+    tft.setCursor(35, 80);
+    tft.setTextColor(ST7735_BLACK);
+    tft.println(alarm);
+    
+    
+    tft.setTextColor(color);
+    tft.setCursor(35+(posn*18), 80);
+    tft.println(key); 
+}
+
+void ADisplay::displaySet(char *date, char *alarm, bool settled, char type){
+// "type" 'c' for setting clock and 'a' for setting an alarm.
+
+    char header_text[14]="setting clock"; // or setting alarm.
+    int c = ST7735_GREEN; // color  
+    char *setting;
+
+    if (type == 'c'){ // setting clock
+      strcpy(header_text,"setting clock");
+      c = ST7735_GREEN;
+      setting = date;
+      
+    }else{ // setting an alarm
+      strcpy(header_text,"setting alarm");
+      c = ST7735_RED;
+      setting = alarm;
+    }
+
 
       tft.fillScreen(ST7735_BLACK);
   
       tft.setCursor(0, 0);
       tft.setTextSize(2);
+
       if(settled) tft.setTextColor(ST7735_BLACK); 
       else tft.setTextColor(ST7735_RED);
-      tft.println("setting alarm");
-   
+
+      tft.println(header_text);  // setting clock or alarm
+
       tft.setCursor(5, 30);
       tft.setTextSize(5);
       tft.setTextColor(ST7735_GREEN);
@@ -131,44 +183,10 @@ void ADisplay::displaySetAlarm(char *date, char *alarm, bool settled){
   
       tft.setCursor(35, 80);
       tft.setTextSize(3);
-      tft.setTextColor(ST7735_RED);
-      tft.println(alarm);  
+      tft.setTextColor(c);
+      tft.println(setting);   
 }
 
-
-
-void ADisplay::setAlarmBlink(int posn, bool black, char *alarm){
-
-    tft.setCursor(35+posn*18, 80);
-   
-    if(black){
-      tft.setTextColor(ST7735_RED);
-    }else{
-      tft.setTextColor(ST7735_BLACK);
-    }
-    
-    tft.println("_");
-
-    tft.setTextColor(ST7735_RED);
-    tft.setCursor(35, 80);
-    tft.println(alarm);
-  }
-
-void ADisplay::setCursorPrintln(int posn, char key, char *alarm){
-    int posn1 = posn;
-    
-    setAlarmBlink(posn, 0, alarm);
-
-    tft.setCursor(35, 80);
-    tft.setTextColor(ST7735_BLACK);
-    tft.println(alarm);
-    
-    
-    tft.setTextColor(ST7735_RED);
-    tft.setCursor(35+(posn*18), 80);
-    tft.println(key);
- 
-}
 
 
 
